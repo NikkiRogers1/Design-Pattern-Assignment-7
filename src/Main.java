@@ -1,7 +1,10 @@
-import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+     
+
         // Create an instance of LegacyFirewall
         LegacyFirewall legacyFirewall = new LegacyFirewall();
         
@@ -15,26 +18,34 @@ public class Main {
 
         EncryptionService encryptionService = new EncryptionService();
 
-        // Use the adapter to log events and set severity
-        firewallAdapter.logEvent("Unauthorized access attempt detected.");
-        firewallAdapter.setSeverity(5);
-
-
-        networkTrafficController.blockPort(8080);
-        networkTrafficController.blockPort(443);
-
-        userAccessManager.lockUserAccounts(List.of("admin_temp", "guest_user_1", "service_acct"));
-    
-        encryptionService.encryptDatabase("Customer_Records");
+        CommandCenterFacade commandCenterFacade = new CommandCenterFacade(userAccessManager, networkTrafficController, encryptionService);
         
-        networkTrafficController.divertTraffic();
+        System.out.println("Enter a security event to log:");
 
-        networkTrafficController.unblockPort(8080);
-        networkTrafficController.unblockPort(443);
+        String securityEvent = scanner.nextLine();
 
-        userAccessManager.unlockUserAccounts(List.of("admin_temp", "guest_user_1", "service_acct"));
+        System.out.println("Enter the severity level:");
+        int severity = scanner.nextInt();
 
-        encryptionService.decryptDatabase("Customer_Records");
+        firewallAdapter.logEvent(securityEvent);
+        firewallAdapter.setSeverity(severity);
+    
+        System.out.println("Choose an option: 1. Lockdown 2. Lift Lockdown 3. Maintenance");
 
-    }
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                commandCenterFacade.initiateEmergencyLockdown();
+                break;
+            case 2:
+                commandCenterFacade.liftEmergencyLockdown();
+                break;
+            case 3:
+                commandCenterFacade.enableMaintenanceMode();
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
+    
+}
 }
